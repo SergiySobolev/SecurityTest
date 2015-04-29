@@ -1,10 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <html>
 <head>
     <base href="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Hello World</title>
+    <link rel="stylesheet" href="<c:url value='/css/securitytest.css'/>">
+    <link rel="stylesheet" href="<c:url value='/css/anothercss.css'/>">
 </head>
 <body>
 <header>
