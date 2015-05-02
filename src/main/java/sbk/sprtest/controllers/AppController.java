@@ -9,13 +9,28 @@ import org.springframework.web.servlet.ModelAndView;
 public class AppController {
 
     @RequestMapping(value = {"/", "/helloworld**"}, method = {RequestMethod.GET})
-    public ModelAndView welcomePage() {
+      public ModelAndView welcomePage() {
         ModelAndView model = new ModelAndView();
         model.addObject("title", "Spring Security Tutorial");
         model.addObject("message", "Welcome Page !");
         model.setViewName("helloworld");
         return model;
     }
+
+    @RequestMapping(value = {"/loginForm"}, method = {RequestMethod.GET})
+    public ModelAndView loginPage() {
+        ModelAndView model = new ModelAndView();
+        model.setViewName("auth/loginForm");
+        return model;
+    }
+
+    @RequestMapping(value = {"/sessionTimeout"}, method = {RequestMethod.GET})
+    public ModelAndView sessioTimeout() {
+        ModelAndView model = new ModelAndView();
+        model.setViewName("auth/sessionTimeout");
+        return model;
+    }
+
 
     @RequestMapping(value = "/protected**", method = RequestMethod.GET)
     public ModelAndView protectedPage() {
@@ -33,7 +48,7 @@ public class AppController {
 
         ModelAndView model = new ModelAndView();
         model.addObject("title", "Spring Security 3.2.4 Hello World Tutorial");
-        model.addObject("message", "This is confidential page - Need Super Admin Role!");
+        model.addObject("message", "This is confidential page - Need Super Admin RoleEntity!");
         model.setViewName("protected");
 
         return model;
