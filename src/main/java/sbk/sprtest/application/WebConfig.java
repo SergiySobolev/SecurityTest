@@ -11,7 +11,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan({ "sbk.sprtest.config", "sbk.sprtest.controllers", "sbk.sprtest.service" })
+@ComponentScan({ "sbk.sprtest.config", "sbk.sprtest.controllers", "sbk.sprtest.security.service"})
 public class WebConfig extends WebMvcConfigurerAdapter {
     @Bean
     public InternalResourceViewResolver viewResolver() {

@@ -1,22 +1,26 @@
 package sbk.sprtest.config;
 
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authentication.dao.ReflectionSaltSource;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.AntPathRequestMatcher;
 import sbk.sprtest.filters.STUsernamePasswordAuthFilter;
-import sbk.sprtest.service.STUserDetailsService;
+import sbk.sprtest.security.service.STUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -41,18 +45,17 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         return authFilter;
     }
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.jdbcAuthentication().dataSource(dataBaseConfig.dataSource())
-                .usersByUsernameQuery("select login, password, enabled from " +
-                        "principal where login=?")
-                .authoritiesByUsernameQuery("select p.login, r.ROLE_NAME from principal p \n" +
-                        "  join PRINCIPAL_ROLE pr on  p.PRINCIPAL_ID = pr.PRINCIPAL_ID\n" +
-                        "  join role r on r.ROLE_ID = pr.ROLE_ID where p.LOGIN=?")
-                .passwordEncoder(passwordEncoder())
-        ;
-
-    }
+//    @Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.jdbcAuthentication().dataSource(dataBaseConfig.dataSource())
+//                .usersByUsernameQuery("select login, password, enabled from " +
+//                        "principal where login=?")
+//                .authoritiesByUsernameQuery("select p.login, r.ROLE_NAME from principal p \n" +
+//                        "  join PRINCIPAL_ROLE pr on  p.PRINCIPAL_ID = pr.PRINCIPAL_ID\n" +
+//                        "  join role r on r.ROLE_ID = pr.ROLE_ID where p.LOGIN=?")
+//                .passwordEncoder(passwordEncoder())
+//        ;
+//    }
 
     @Override
     @Bean
@@ -95,8 +98,33 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public Md5PasswordEncoder passwordEncoder() throws Exception {
-        return new Md5PasswordEncoder();
+    public AuthenticationManager authenticationManager() throws Exception {
+        AuthenticationManager authenticationManager = new ProviderManager(
+                Lists.newArrayList(authenticationProvider()));
+        return authenticationManager;
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() throws Exception {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setSaltSource(saltSource());
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        authenticationProvider.afterPropertiesSet();
+        return authenticationProvider;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() throws Exception {
+        return new ShaPasswordEncoder();
+    }
+
+    @Bean
+    public SaltSource saltSource() throws Exception {
+        ReflectionSaltSource saltSource = new ReflectionSaltSource();
+        saltSource.setUserPropertyToUse("salt");
+        saltSource.afterPropertiesSet();
+        return saltSource;
     }
 
 }

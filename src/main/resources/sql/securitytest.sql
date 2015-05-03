@@ -1,8 +1,9 @@
 create table principal (
   principal_id numeric(10) NOT NULL,
   login varchar2(50) NOT NULL,
-  password varchar2(50) NOT NULL,
+  password varchar2(256) NOT NULL,
   enabled numeric(1) NOT NULL,
+  salt varchar2(50) default null
   CONSTRAINT  principal_pk PRIMARY KEY (principal_id),
   CONSTRAINT enabled_chk check (enabled in (0,1))
 );

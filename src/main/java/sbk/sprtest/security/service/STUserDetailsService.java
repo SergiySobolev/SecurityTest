@@ -1,17 +1,18 @@
-package sbk.sprtest.service;
+package sbk.sprtest.security.service;
 
 import com.google.common.base.Function;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import sbk.sprtest.entity.PrincipalEntity;
 import sbk.sprtest.entity.RoleEntity;
 import sbk.sprtest.repo.PrincipalRepository;
+import sbk.sprtest.security.domain.STUserDetails;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,14 +34,15 @@ public class STUserDetailsService implements UserDetailsService {
         boolean accountNonLocked = true;
 
         UserDetails userDetails =
-                new org.springframework.security.core.userdetails.User(
+                new STUserDetails(
                         principal.getLogin().trim(),
                         principal.getPassword().trim(),
                         enabled,
                         accountNonExpired,
                         credentialsNonExpired,
                         accountNonLocked,
-                        getAuthorities(principal)
+                        getAuthorities(principal),
+                        principal.getSalt()
                 );
         return userDetails;
     }

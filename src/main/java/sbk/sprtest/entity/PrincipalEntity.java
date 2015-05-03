@@ -26,6 +26,9 @@ public class PrincipalEntity extends BaseEntity {
     @Column(name = "enabled")
     private boolean enabled;
 
+    @Column(name = "salt")
+    private String salt;
+
     @ManyToMany(cascade={CascadeType.MERGE,CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JoinTable(name="principal_role",
             joinColumns = {@JoinColumn(name="principal_id", referencedColumnName="principal_id")},
@@ -60,6 +63,14 @@ public class PrincipalEntity extends BaseEntity {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public void setPassword(String password) {
