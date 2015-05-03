@@ -3,6 +3,7 @@ package sbk.sprtest.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,10 +18,14 @@ import sbk.sprtest.service.STUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@Import(DataBaseConfig.class)
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private STUserDetailsService userDetailsService;
+
+    @Autowired
+    private DataBaseConfig dataBaseConfig;
 
     @Bean
     public LoginUrlAuthenticationEntryPoint loginUrlAuthenticationEntryPoint(){
@@ -36,10 +41,14 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
-//        auth.inMemoryAuthentication().withUser("user").password("user").roles("USER");
-//        auth.inMemoryAuthentication().withUser("admin").password("admin").roles("ADMIN");
-//        auth.inMemoryAuthentication().withUser("superadmin").password("superadmin").roles("SUPERADMIN");
+        auth.jdbcAuthentication().dataSource(dataBaseConfig.dataSource())
+                .usersByUsernameQuery("select login, password, enabled from " +
+                        "principal where login=?")
+                .authoritiesByUsernameQuery("select p.login, r.ROLE_NAME from principal p \n" +
+                        "  join PRINCIPAL_ROLE pr on  p.PRINCIPAL_ID = pr.PRINCIPAL_ID\n" +
+                        "  join role r on r.ROLE_ID = pr.ROLE_ID where p.LOGIN=?")
+        ;
+//        auth.userDetailsService(userDetailsService);
     }
 
     @Override
@@ -73,6 +82,8 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/")
                         .invalidateHttpSession(true)
+                .and()
+                    .exceptionHandling().accessDeniedPage("/403")
                 .and()
                     .addFilter(authenticationFilter())
                 ;
