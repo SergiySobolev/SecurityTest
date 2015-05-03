@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.ReflectionSaltSource;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -47,8 +49,9 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authoritiesByUsernameQuery("select p.login, r.ROLE_NAME from principal p \n" +
                         "  join PRINCIPAL_ROLE pr on  p.PRINCIPAL_ID = pr.PRINCIPAL_ID\n" +
                         "  join role r on r.ROLE_ID = pr.ROLE_ID where p.LOGIN=?")
+                .passwordEncoder(passwordEncoder())
         ;
-//        auth.userDetailsService(userDetailsService);
+
     }
 
     @Override
@@ -90,4 +93,10 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement().invalidSessionUrl("/loginForm");
     }
+
+    @Bean
+    public Md5PasswordEncoder passwordEncoder() throws Exception {
+        return new Md5PasswordEncoder();
+    }
+
 }
