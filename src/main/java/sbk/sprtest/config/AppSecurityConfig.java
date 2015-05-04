@@ -45,18 +45,6 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         return authFilter;
     }
 
-//    @Autowired
-//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.jdbcAuthentication().dataSource(dataBaseConfig.dataSource())
-//                .usersByUsernameQuery("select login, password, enabled from " +
-//                        "principal where login=?")
-//                .authoritiesByUsernameQuery("select p.login, r.ROLE_NAME from principal p \n" +
-//                        "  join PRINCIPAL_ROLE pr on  p.PRINCIPAL_ID = pr.PRINCIPAL_ID\n" +
-//                        "  join role r on r.ROLE_ID = pr.ROLE_ID where p.LOGIN=?")
-//                .passwordEncoder(passwordEncoder())
-//        ;
-//    }
-
     @Override
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -116,7 +104,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() throws Exception {
-        return new ShaPasswordEncoder();
+        return new ShaPasswordEncoder(256);
     }
 
     @Bean
