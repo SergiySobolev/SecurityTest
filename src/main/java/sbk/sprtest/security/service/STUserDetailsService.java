@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import sbk.sprtest.entity.PermissionEntity;
 import sbk.sprtest.entity.PrincipalEntity;
 import sbk.sprtest.entity.RoleEntity;
 import sbk.sprtest.repo.PrincipalRepository;
@@ -16,8 +17,10 @@ import sbk.sprtest.security.domain.STUserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Sets.newHashSet;
 
 @Service
 public class STUserDetailsService implements UserDetailsService {
@@ -47,14 +50,19 @@ public class STUserDetailsService implements UserDetailsService {
         return userDetails;
     }
 
-    public Collection<? extends GrantedAuthority> getAuthorities(PrincipalEntity principal) {
-        List<GrantedAuthority> authList = from(principal.getRoles())
-                .transform(new Function<RoleEntity, GrantedAuthority>() {
-                    @Override
-                    public GrantedAuthority apply(RoleEntity roleEntity) {
-                        return new SimpleGrantedAuthority(roleEntity.getRoleName());
-                    }
-                }).toList();
+    private  Collection<? extends GrantedAuthority> getAuthorities(PrincipalEntity principal) {
+        Set<GrantedAuthority> authList = newHashSet();
+        for(RoleEntity role : principal.getRoles()) {
+             authList.addAll(from(role.getPermissions())
+                     .transform(new Function<PermissionEntity, GrantedAuthority>() {
+                         @Override
+                         public GrantedAuthority apply(PermissionEntity permission) {
+                             return new SimpleGrantedAuthority(permission.getName());
+                         }
+                     }).toSet());
+        }
         return authList;
     }
+
+
 }

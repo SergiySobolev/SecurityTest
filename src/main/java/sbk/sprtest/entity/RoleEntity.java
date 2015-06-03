@@ -1,5 +1,7 @@
 package sbk.sprtest.entity;
 
+import com.google.common.collect.Sets;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -7,7 +9,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name="role")
-public class RoleEntity extends BaseEntity{
+public class RoleEntity extends BaseEntity {
 
 	@Id
 	@Column(name = "role_id")
@@ -18,6 +20,13 @@ public class RoleEntity extends BaseEntity{
 
 	@ManyToMany(mappedBy="roles")
 	private Set<PrincipalEntity> principals = new HashSet<PrincipalEntity>();
+
+	@ManyToMany(cascade={CascadeType.MERGE,CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@JoinTable(name="role_permission",
+			inverseJoinColumns = {@JoinColumn(name="permission_id", referencedColumnName="permission_id")},
+			joinColumns = {@JoinColumn(name="role_id", referencedColumnName="role_id")}
+	)
+	private Set<PermissionEntity> permissions = Sets.newHashSet();
 	
 	public Integer getId() {
 		return id;
@@ -41,5 +50,13 @@ public class RoleEntity extends BaseEntity{
 
 	public void setPrincipals(Set<PrincipalEntity> principals) {
 		this.principals = principals;
+	}
+
+	public Set<PermissionEntity> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(Set<PermissionEntity> permissions) {
+		this.permissions = permissions;
 	}
 }

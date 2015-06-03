@@ -17,5 +17,6 @@
 </section>
 <div>Get <a href="protected">protected</a> resource for admin.</div>
 <div>Get <a href="confidential">confidential</a> resource for superadmin.</div>
+<div><a href="all/view">View All</a></div>
 </body>
 </html>
