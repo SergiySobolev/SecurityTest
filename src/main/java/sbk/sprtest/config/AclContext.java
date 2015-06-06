@@ -8,6 +8,7 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -20,11 +21,17 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 
 @Configuration
 @Import(DataBaseConfig.class)
 public class AclContext {
+
+    private static final String HIERARCHY = "auth.hierarchy";
+
+    @Resource
+    private Environment env;
 
     @Autowired
     private DataBaseConfig dataBaseConfig;
@@ -32,8 +39,9 @@ public class AclContext {
     @Bean
     public DefaultMethodSecurityExpressionHandler expressionHandler() throws IOException {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-        expressionHandler.setPermissionEvaluator(new AclPermissionEvaluator(aclService()));
-        expressionHandler.setRoleHierarchy(roleHierarchy());
+        AclPermissionEvaluator permissionEvaluator = new AclPermissionEvaluator(aclService());
+        permissionEvaluator.setSidRetrievalStrategy(new SidRetrievalStrategyImpl(roleHierarchy()));
+        expressionHandler.setPermissionEvaluator(permissionEvaluator);
         return expressionHandler;
     }
 
@@ -67,9 +75,9 @@ public class AclContext {
     @Bean(name = "ehcache")
     public EhCacheFactoryBean ehCacheFactoryBean() throws CacheException, IOException {
         EhCacheFactoryBean factory = new EhCacheFactoryBean();
-        factory.setCacheManager(ehCacheCacheManager());
-        factory.setCacheName("aclCache");
-        factory.afterPropertiesSet();
+//        factory.setCacheManager(ehCacheCacheManager());
+//        factory.setCacheName("aclCache");
+//        factory.afterPropertiesSet();
         return factory;
     }
 
@@ -81,17 +89,14 @@ public class AclContext {
 
     @Bean
     public AclAuthorizationStrategy aclAuthorizationStrategy(){
-        return new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_ADMIN"),
-                new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_ADMIN"));
+        return new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ADMIN_READ"),
+                new SimpleGrantedAuthority("ADMIN_READ"), new SimpleGrantedAuthority("ADMIN_READ"));
     }
 
     @Bean
     public RoleHierarchy roleHierarchy(){
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        roleHierarchy.setHierarchy(
-                "ROLE_ADMIN > ROLE_USER\n" +
-                "ROLE_USER > ROLE_VISITOR"
-        );
+        roleHierarchy.setHierarchy(env.getRequiredProperty(HIERARCHY));
         return roleHierarchy;
     }
 

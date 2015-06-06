@@ -1,22 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <html>
 <head>
-    <base href="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Hello World</title>
+    <title>Acl Example</title>
     <link rel="stylesheet" href="<c:url value='/css/bootstrap.css'/>">
 </head>
 <body>
-<header>
-    <h1>Title : ${title}</h1>
-</header>
-<section>
-    <h1>Message : ${message}</h1>
-</section>
-<div>Get <a href="protected">protected</a> resource for admin.</div>
-<div>Get <a href="confidential">confidential</a> resource for superadmin.</div>
-<div><a href="all/view">View All</a></div>
+    <div>
+        <sec:authorize access="isAnonymous()">
+            <a href="loginForm">Login</a>
+        </sec:authorize>
+        <sec:authorize access="isAuthenticated()">
+            <a href="logout">Logout</a>
+        </sec:authorize>
+    </div>
+    <sec:authorize access="isAuthenticated()">
+        <div><a href="all/view">View All</a></div>
+    </sec:authorize>
 </body>
 </html>

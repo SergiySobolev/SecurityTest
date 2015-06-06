@@ -27,8 +27,6 @@ import sbk.sprtest.security.service.STUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
-//@EnableGlobalAuthentication()
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Import(STGlobalMethodSecurityConfiguration.class)
 public class AclSecurityConfig extends WebSecurityConfigurerAdapter  {
 
@@ -40,20 +38,13 @@ public class AclSecurityConfig extends WebSecurityConfigurerAdapter  {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-    //    web.expressionHandler((SecurityExpressionHandler) globalCfg.createExpressionHandler());
     }
-//
-//
-//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//
-//    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                    .antMatchers("/protected/**").access("hasRole('ROLE_ADMIN')")
-                    .antMatchers("/confidential/**").access("hasRole('ROLE_SUPERADMIN')")
+                 //   .antMatchers("/").access("isAuthenticated()")
                     .antMatchers("/auth/**").permitAll()
                     .antMatchers("/bulletin/**").access("hasRole('ROLE_VISITOR')")
                     .antMatchers("/role/admin/**").access("hasRole('ROLE_ADMIN')")

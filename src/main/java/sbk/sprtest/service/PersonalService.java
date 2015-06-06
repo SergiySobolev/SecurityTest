@@ -34,6 +34,7 @@ public class PersonalService implements GenericService {
 		return null;
 	}
 
+	@PostFilter("hasPermission(filterObject, 'READ') or hasPermission(filterObject, 'WRITE')")
 	public List<PersonalPost> getAll() {
 		return personalPostRepository.findAll();
 	}

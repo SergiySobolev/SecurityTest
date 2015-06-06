@@ -22,7 +22,6 @@ public interface GenericService {
     @PostAuthorize("hasPermission(returnObject, 'READ')")
     public  Post getSingle(Long id);
 
-    @PostFilter("hasPermission(filterObject, 'READ') or hasPermission(filterObject, 'WRITE')")
     public List<? extends Post> getAll();
 
     @PreAuthorize("hasPermission(#post, 'READ')")
